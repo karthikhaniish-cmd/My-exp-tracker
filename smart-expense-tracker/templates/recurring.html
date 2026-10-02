@@ -1,0 +1,140 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Recurring Expenses</h2>
+        <p class="text-muted mb-0">Track subscriptions, utilities, and recurring obligations</p>
+    </div>
+    <button class="btn btn-fintech-primary" data-bs-toggle="modal" data-bs-target="#addRecurringModal">
+        <i class="fa-solid fa-plus me-1"></i> Add Recurring
+    </button>
+</div>
+
+<div class="row" id="recurring-list-container">
+    <div class="col-12 text-center py-5 text-muted">Loading subscriptions...</div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="addRecurringModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-content-fintech p-3">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">New Recurring Subscription</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="add-recurring-form" onsubmit="saveRecurringForm(event)">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Subscription / Bill Name</label>
+                        <input type="text" id="rec-name" class="form-control form-control-fintech" placeholder="e.g. Netflix, Rent, Gym" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Amount</label>
+                        <input type="number" id="rec-amount" step="0.01" class="form-control form-control-fintech" placeholder="649" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Category</label>
+                        <select id="rec-category" class="form-select form-select-fintech">
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Bills">Bills</option>
+                            <option value="Health">Health</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Frequency</label>
+                        <select id="rec-frequency" class="form-select form-select-fintech">
+                            <option value="MONTHLY">Monthly</option>
+                            <option value="YEARLY">Yearly</option>
+                            <option value="WEEKLY">Weekly</option>
+                            <option value="DAILY">Daily</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Start Date</label>
+                        <input type="date" id="rec-start" class="form-control form-control-fintech" required>
+                    </div>
+                    <button type="submit" class="btn btn-fintech-primary w-100">SAVE RECURRING</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function loadRecurring() {
+    try {
+        const res = await fetch('/api/recurring');
+        const data = await res.json();
+        const container = document.getElementById('recurring-list-container');
+        if (!data.success || !container) return;
+        container.innerHTML = '';
+
+        if (data.data.length === 0) {
+            container.innerHTML = `<div class="col-12 text-center py-5 text-muted">No recurring payments configured yet.</div>`;
+            return;
+        }
+
+        data.data.forEach(r => {
+            const col = document.createElement('div');
+            col.className = 'col-md-6 col-lg-4 mb-3';
+            col.innerHTML = `
+                <div class="fintech-card">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="fw-bold mb-0">${r.name}</h5>
+                        <span class="badge bg-primary">${r.frequency}</span>
+                    </div>
+                    <div class="h4 fw-bold text-warning mb-2">${App.formatCurrency(r.amount)}</div>
+                    <div class="small text-muted mb-3">Next due: ${r.next_date}</div>
+                    <button class="btn btn-sm btn-outline-danger w-100" onclick="deleteRecurring(${r.id})">Delete</button>
+                </div>
+            `;
+            container.appendChild(col);
+        });
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function saveRecurringForm(e) {
+    e.preventDefault();
+    const payload = {
+        name: document.getElementById('rec-name').value,
+        amount: document.getElementById('rec-amount').value,
+        category: document.getElementById('rec-category').value,
+        frequency: document.getElementById('rec-frequency').value,
+        start_date: document.getElementById('rec-start').value
+    };
+
+    const res = await fetch('/api/recurring', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+        App.showToast("Recurring payment saved");
+        bootstrap.Modal.getInstance(document.getElementById('addRecurringModal')).hide();
+        loadRecurring();
+    }
+}
+
+async function deleteRecurring(id) {
+    if (!confirm("Delete this recurring commitment?")) return;
+    const res = await fetch(`/api/recurring/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.success) {
+        App.showToast("Deleted");
+        loadRecurring();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('rec-start').value = new Date().toISOString().split('T')[0];
+    loadRecurring();
+});
+</script>
+{% endblock %}

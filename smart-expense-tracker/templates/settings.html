@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="mb-4">
+    <h2 class="fw-bold mb-1">Settings & Data Management</h2>
+    <p class="text-muted mb-0">Preferences, display currency, theme, and CSV import/export</p>
+</div>
+
+<div class="row g-4">
+    <!-- Profile & Currency -->
+    <div class="col-md-6">
+        <div class="fintech-card mb-4">
+            <h5 class="fw-bold mb-3">Preferences</h5>
+            <div class="mb-3">
+                <label class="form-label text-muted small">Display Currency</label>
+                <select id="setting-currency" class="form-select form-select-fintech" onchange="changeCurrency(this.value)">
+                    <option value="₹">₹ INR (Indian Rupee)</option>
+                    <option value="$">$ USD (US Dollar)</option>
+                    <option value="€">€ EUR (Euro)</option>
+                    <option value="£">£ GBP (British Pound)</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label text-muted small">Theme Appearance</label>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-fintech-outline flex-grow-1" onclick="App.toggleTheme('dark')">Dark Theme</button>
+                    <button class="btn btn-fintech-outline flex-grow-1" onclick="App.toggleTheme('light')">Light Theme</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Import & Export -->
+    <div class="col-md-6">
+        <div class="fintech-card">
+            <h5 class="fw-bold mb-3">Data Backup & Restore</h5>
+            <div class="d-grid gap-2">
+                <a href="/api/export/csv" class="btn btn-fintech-outline text-start">
+                    <i class="fa-solid fa-file-csv me-2 text-success"></i> Download Transactions (expenses.csv)
+                </a>
+                <a href="/api/export/json" class="btn btn-fintech-outline text-start">
+                    <i class="fa-solid fa-code me-2 text-warning"></i> Download JSON Backup (expenses.json)
+                </a>
+            </div>
+
+            <hr class="my-4" style="border-color: var(--border-color);">
+
+            <h6 class="fw-bold mb-2">Import Transactions CSV</h6>
+            <p class="text-muted small">Paste raw CSV data (Date, Description, Category, Payment Method, Type, Amount, Notes):</p>
+            <textarea id="import-csv-text" class="form-control form-control-fintech mb-3" rows="4" placeholder="Date,Description,Category,Payment Method,Type,Amount,Notes
+2026-10-01,Groceries,Food,UPI,EXPENSE,1200,Weekly run"></textarea>
+            <button class="btn btn-fintech-primary w-100" onclick="importCsv()">Import CSV Data</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function changeCurrency(val) {
+    App.currency = val;
+    localStorage.setItem('fintech_currency', val);
+    App.showToast(`Currency changed to ${val}`);
+}
+
+async function importCsv() {
+    const text = document.getElementById('import-csv-text').value.trim();
+    if (!text) {
+        alert("Please paste CSV text");
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/import/csv', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ csv_text: text })
+        });
+        const data = await res.json();
+        if (data.success) {
+            App.showToast(`Successfully imported ${data.count} transactions!`);
+            document.getElementById('import-csv-text').value = '';
+        } else {
+            alert("Errors:\n" + (data.errors ? data.errors.join("\n") : "Failed to import"));
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const cur = localStorage.getItem('fintech_currency') || '₹';
+    document.getElementById('setting-currency').value = cur;
+});
+</script>
+{% endblock %}

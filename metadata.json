@@ -1,0 +1,6 @@
+{
+  "name": "Smart Expense Tracker",
+  "description": "Premium personal finance SaaS expense tracker with interactive charts, budget alerts, and smart insights",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

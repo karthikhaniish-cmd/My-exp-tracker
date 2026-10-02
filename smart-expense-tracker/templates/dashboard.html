@@ -1,0 +1,139 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Good Morning, Alex 👋</h2>
+        <p class="text-muted mb-0">Here's your real-time financial overview.</p>
+    </div>
+    <button class="btn btn-fintech-primary" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
+        <i class="fa-solid fa-plus me-1"></i> Add Transaction
+    </button>
+</div>
+
+<!-- Primary KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="fintech-card">
+            <div class="stat-title">Total Balance</div>
+            <div class="stat-value" id="stat-total-balance">₹0</div>
+            <small class="text-success mt-2 d-block"><i class="fa-solid fa-arrow-trend-up"></i> Healthy liquidity</small>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="fintech-card">
+            <div class="stat-title">Net Savings</div>
+            <div class="stat-value text-success" id="stat-net-savings">₹0</div>
+            <small class="text-muted mt-2 d-block">Income - Expenses</small>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="fintech-card">
+            <div class="stat-title">Total Income</div>
+            <div class="stat-value" id="stat-total-income">₹0</div>
+            <small class="text-muted mt-2 d-block">All inflows</small>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="fintech-card">
+            <div class="stat-title">Total Expenses</div>
+            <div class="stat-value text-danger" id="stat-total-expenses">₹0</div>
+            <small class="text-muted mt-2 d-block">All outflows</small>
+        </div>
+    </div>
+</div>
+
+<!-- Secondary Info Row -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="fintech-card d-flex justify-content-between align-items-center">
+            <div>
+                <div class="stat-title">Current Month Spending</div>
+                <div class="h4 fw-bold mt-1 mb-0" id="stat-monthly-spending">₹0</div>
+            </div>
+            <i class="fa-solid fa-calendar-days text-muted fa-2x"></i>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="fintech-card d-flex justify-content-between align-items-center">
+            <div>
+                <div class="stat-title">Highest Spending Category</div>
+                <div class="h4 fw-bold mt-1 mb-0 text-warning" id="stat-highest-category">None</div>
+            </div>
+            <i class="fa-solid fa-chart-pie text-muted fa-2x"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row 1: Spending Trend & Doughnut -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="fintech-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Spending Trend</h5>
+                <span class="badge bg-secondary">30 Days</span>
+            </div>
+            <div style="height: 260px;">
+                <canvas id="chart-spending-trend"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="fintech-card">
+            <h5 class="fw-bold mb-3">Expense Categories</h5>
+            <div style="height: 260px;">
+                <canvas id="chart-expense-categories"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row 2: Monthly Expenses & Income vs Expenses -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="fintech-card">
+            <h5 class="fw-bold mb-3">Monthly Expenses (Annual)</h5>
+            <div style="height: 240px;">
+                <canvas id="chart-monthly-expenses"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="fintech-card">
+            <h5 class="fw-bold mb-3">Income vs Expenses</h5>
+            <div style="height: 240px;">
+                <canvas id="chart-income-vs-expenses"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Transactions Table -->
+<div class="fintech-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">Recent Transactions</h5>
+        <a href="/transactions" class="btn btn-sm btn-fintech-outline">View All</a>
+    </div>
+    <div class="table-responsive">
+        <table class="fintech-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Payment</th>
+                    <th>Type</th>
+                    <th class="text-end">Amount</th>
+                </tr>
+            </thead>
+            <tbody id="recent-transactions-list">
+                <tr><td colspan="6" class="text-center py-3 text-muted">Loading...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

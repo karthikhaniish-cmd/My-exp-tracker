@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Outer gold accent ring -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#C9A24B"
+        android:strokeWidth="2.5"
+        android:pathData="M54,26 A28,28 0 1,0 54,82 A28,28 0 1,0 54,26 Z" />
+    
+    <!-- Coin center fill with warm golden tone -->
+    <path
+        android:fillColor="#1C2E46"
+        android:pathData="M54,28 A26,26 0 1,0 54,80 A26,26 0 1,0 54,28 Z" />
+
+    <!-- Upward Trend Chart Bars -->
+    <!-- Bar 1 (Left) -->
+    <path
+        android:fillColor="#C9A24B"
+        android:pathData="M38,68 L44,68 L44,56 L38,56 Z" />
+    <!-- Bar 2 (Middle) -->
+    <path
+        android:fillColor="#DFC174"
+        android:pathData="M48,68 L54,68 L54,48 L48,48 Z" />
+    <!-- Bar 3 (Right) -->
+    <path
+        android:fillColor="#F6DA8B"
+        android:pathData="M58,68 L64,68 L64,40 L58,40 Z" />
+
+    <!-- Trend Arrow upward line -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M37,56 L49,46 L60,37 L69,37" />
+    <!-- Arrowhead -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M69,37 L64,34 L66,39 Z" />
+
+    <!-- Tiny sparkle star -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M70,48 L71.5,52 L75.5,53.5 L71.5,55 L70,59 L68.5,55 L64.5,53.5 L68.5,52 Z" />
+</vector>

@@ -1,0 +1,102 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="mb-4">
+    <h2 class="fw-bold mb-1">Financial Analytics</h2>
+    <p class="text-muted mb-0">KPI metrics, savings rate, and category spending distributions</p>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4" id="analytics-kpis">
+    <div class="col-md-3">
+        <div class="fintech-card">
+            <div class="stat-title">Savings Rate</div>
+            <div class="stat-value text-success" id="ana-savings-rate">0%</div>
+            <small class="text-muted">Target: > 20%</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="fintech-card">
+            <div class="stat-title">Avg Daily Spend</div>
+            <div class="stat-value" id="ana-daily-spend">₹0</div>
+            <small class="text-muted">Over all active days</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="fintech-card">
+            <div class="stat-title">Total Monthly Outflow</div>
+            <div class="stat-value text-danger" id="ana-monthly-outflow">₹0</div>
+            <small class="text-muted">This calendar month</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="fintech-card">
+            <div class="stat-title">Top Category</div>
+            <div class="stat-value text-warning" id="ana-top-category">-</div>
+            <small class="text-muted">Highest consumption</small>
+        </div>
+    </div>
+</div>
+
+<!-- Category Distribution Table -->
+<div class="fintech-card">
+    <h5 class="fw-bold mb-3">Category Spending Breakdown</h5>
+    <div class="table-responsive">
+        <table class="fintech-table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Total Spending</th>
+                    <th>Percentage</th>
+                    <th>Transactions Count</th>
+                </tr>
+            </thead>
+            <tbody id="category-analysis-tbody">
+                <tr><td colspan="4" class="text-center py-4 text-muted">Loading metrics...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function loadAnalytics() {
+    try {
+        const res = await fetch('/api/analytics');
+        const data = await res.json();
+        if (!data.success) return;
+
+        const m = data.metrics;
+        document.getElementById('ana-savings-rate').innerText = `${m.savings_rate}%`;
+        document.getElementById('ana-daily-spend').innerText = App.formatCurrency(m.total_expenses / 30);
+        document.getElementById('ana-monthly-outflow').innerText = App.formatCurrency(m.monthly_spending);
+        document.getElementById('ana-top-category').innerText = m.highest_spending_category;
+
+        const tbody = document.getElementById('category-analysis-tbody');
+        tbody.innerHTML = '';
+        data.category_analysis.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.className = 'table-row-item';
+            tr.innerHTML = `
+                <td><strong>${row.category}</strong></td>
+                <td class="fw-bold">${App.formatCurrency(row.total_spending)}</td>
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <span>${row.percentage}%</span>
+                        <div class="progress flex-grow-1" style="height: 6px;">
+                            <div class="progress-bar bg-warning" style="width: ${row.percentage}%"></div>
+                        </div>
+                    </div>
+                </td>
+                <td>${row.transactions_count}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (e) {
+        console.error(e);
+    }
+}
+document.addEventListener('DOMContentLoaded', loadAnalytics);
+</script>
+{% endblock %}

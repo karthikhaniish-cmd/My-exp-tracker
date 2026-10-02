@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Budget Management</h2>
+        <p class="text-muted mb-0">Set monthly spending caps with 75%, 90% and 100% alert thresholds</p>
+    </div>
+    <button class="btn btn-fintech-primary" data-bs-toggle="modal" data-bs-target="#addBudgetModal">
+        <i class="fa-solid fa-plus me-1"></i> New Budget
+    </button>
+</div>
+
+<!-- Budgets Grid -->
+<div class="row" id="budgets-grid">
+    <div class="col-12 text-center py-5 text-muted">Loading budgets...</div>
+</div>
+
+<!-- Add Budget Modal -->
+<div class="modal fade" id="addBudgetModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-content-fintech p-3">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Set Category Budget</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="add-budget-form" onsubmit="saveBudgetForm(event)">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Category</label>
+                        <select id="budget-category" class="form-select form-select-fintech" required>
+                            <option value="Food">Food</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Bills">Bills</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Education">Education</option>
+                            <option value="Health">Health</option>
+                            <option value="Travel">Travel</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Monthly Limit Amount</label>
+                        <input type="number" id="budget-amount" step="0.01" class="form-control form-control-fintech" placeholder="5000" required>
+                    </div>
+                    <button type="submit" class="btn btn-fintech-primary w-100">SAVE BUDGET</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/budgets.js') }}"></script>
+<script>
+async function saveBudgetForm(e) {
+    e.preventDefault();
+    const category = document.getElementById('budget-category').value;
+    const amount = document.getElementById('budget-amount').value;
+
+    const res = await fetch('/api/budgets', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ category, amount })
+    });
+    const data = await res.json();
+    if (data.success) {
+        App.showToast("Budget saved!");
+        bootstrap.Modal.getInstance(document.getElementById('addBudgetModal')).hide();
+        loadBudgets();
+    }
+}
+</script>
+{% endblock %}
